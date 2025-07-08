@@ -3,25 +3,38 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import java.util.Locale;
+
 
 @TeleOp(name = "TeleOp")
 public class TeleOpMode extends LinearOpMode{
 
 
 
-    private DcMotor leftMotor = hardwareMap.get(DcMotor.class, "leftmotor");
-    private DcMotor rightMotor = hardwareMap.get(DcMotor.class, "rightmotor");
+    private DcMotor leftMotor;
+    private DcMotor rightMotor;
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+        leftMotor = hardwareMap.get(DcMotor.class, Constants.MotorConstants.leftMotorId);
+        rightMotor = hardwareMap.get(DcMotor.class, Constants.MotorConstants.rightMotorId);
+
+        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
         resetRuntime();
 
         while (opModeIsActive()) {
-            splitDrive(gamepad1.left_stick_y, gamepad1.right_stick_y);
+            tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x);
+
+            telemetry.addData("Status", String.format(Locale.ENGLISH, "left %f right %f", gamepad1.left_stick_y, gamepad2.left_stick_y));
+            telemetry.update();
         }
     }
 
@@ -44,8 +57,13 @@ public class TeleOpMode extends LinearOpMode{
      */
     public void tankDrive(double forward, double turn) {
         //TODO test the math here for whether it is actually correct
-        double lSpeed = forward - turn;
-        double rSpeed = forward + turn;
+        double lSpeed = forward + turn;
+        double rSpeed = forward - turn;
+
+        /* idk if this is actually useful
+        lSpeed = lSpeed > 1 ? 1 : lSpeed < -1 ? -1 : lSpeed;
+        rSpeed = rSpeed > 1 ? 1 : rSpeed < -1 ? -1 : rSpeed;
+        //*/
 
         splitDrive(lSpeed, rSpeed);
     }
