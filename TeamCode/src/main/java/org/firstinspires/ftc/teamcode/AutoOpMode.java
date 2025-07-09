@@ -13,22 +13,20 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-
-
 @Autonomous(name = "Auto")
 @SuppressWarnings("unused")
 public class AutoOpMode extends LinearOpMode {
+    private final int DESIRED_TAG_ID = -1;
     private DriveSubsystem driveSubsystem;
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
-
-    private final int DESIRED_TAG_ID = -1;
 
     @Override
     public void runOpMode() {
@@ -62,7 +60,7 @@ public class AutoOpMode extends LinearOpMode {
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
                 // Look to see if we have size info on this tag.
-                if (detection.metadata != null || true) {
+                if (detection.metadata != null) {
                     //  Check to see if we want to track towards this tag.
                     if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
                         // Yes, we want to use this tag.
@@ -81,31 +79,30 @@ public class AutoOpMode extends LinearOpMode {
 
             // Tell the driver what we see, and what to do.
             if (targetFound) {
-                telemetry.addData("\n>","HOLD Left-Bumper to Drive to Target\n");
+                telemetry.addData("\n>", "HOLD Left-Bumper to Drive to Target\n");
                 telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
+                telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
+                telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
 
 
             } else {
-                telemetry.addData("\n>","Drive using joysticks to find valid target\n");
+                telemetry.addData("\n>", "Drive using joysticks to find valid target\n");
             }
 
             double drive, turn;
             if (gamepad1.left_bumper && targetFound) {
-                Pair<Double,Double> movement = goToAprilTag(desiredTag);
+                Pair<Double, Double> movement = goToAprilTag(desiredTag);
 
                 drive = movement.first;
                 turn = movement.second;
 
-                telemetry.addData("Auto","Drive %5.2f, Turn %5.2f", drive, turn);
+                telemetry.addData("Auto", "Drive %5.2f, Turn %5.2f", drive, turn);
             } else {
                 drive = gamepad1.left_stick_y;
                 turn = gamepad1.right_stick_x;
 
-                telemetry.addData("Manual","Drive %5.2f, Turn %5.2f", drive, turn);
+                telemetry.addData("Manual", "Drive %5.2f, Turn %5.2f", drive, turn);
             }
-
 
 
             driveSubsystem.tankDrive(drive, turn, 1);
@@ -120,7 +117,9 @@ public class AutoOpMode extends LinearOpMode {
      */
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
+
+        aprilTag = new AprilTagProcessor.Builder().setTagLibrary(AprilTagGameDatabase.getSampleTagLibrary()).build();
+
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
         // e.g. Some typical detection data using a Logitech C920 WebCam
@@ -133,15 +132,9 @@ public class AutoOpMode extends LinearOpMode {
 
         // Create the vision portal by using a builder.
         if (Constants.AutoConstants.USE_WEBCAM) {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "camera"))
-                    .addProcessor(aprilTag)
-                    .build();
+            visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "camera")).addProcessor(aprilTag).build();
         } else {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(BuiltinCameraDirection.BACK)
-                    .addProcessor(aprilTag)
-                    .build();
+            visionPortal = new VisionPortal.Builder().setCamera(BuiltinCameraDirection.BACK).addProcessor(aprilTag).build();
         }
     }
 
@@ -149,7 +142,7 @@ public class AutoOpMode extends LinearOpMode {
      Manually set the camera gain and exposure.
      This can only be called AFTER calling initAprilTag(), and only works for Webcams;
     */
-    private void    setManualExposure(int exposureMS, int gain) {
+    private void setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
 
         if (visionPortal == null) {
@@ -168,8 +161,7 @@ public class AutoOpMode extends LinearOpMode {
         }
 
         // Set camera controls unless we are stopping.
-        if (!isStopRequested())
-        {
+        if (!isStopRequested()) {
             ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
             if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
                 exposureControl.setMode(ExposureControl.Mode.Manual);
