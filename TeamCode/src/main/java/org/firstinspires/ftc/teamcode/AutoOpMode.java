@@ -105,7 +105,7 @@ public class AutoOpMode extends LinearOpMode {
             }
 
 
-            driveSubsystem.tankDrive(drive, turn, 1);
+            driveSubsystem.tankDrive(drive, turn);
             telemetry.update();
         }
     }
@@ -118,7 +118,7 @@ public class AutoOpMode extends LinearOpMode {
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
 
-        aprilTag = new AprilTagProcessor.Builder().setTagLibrary(AprilTagGameDatabase.getSampleTagLibrary()).build();
+        aprilTag = new AprilTagProcessor.Builder().setTagLibrary(AprilTagGameDatabase.getIntoTheDeepTagLibrary()).build();
 
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -189,6 +189,6 @@ public class AutoOpMode extends LinearOpMode {
 
         telemetry.addData("Auto", "Drive %5.2f, Turn %5.2f", drive, turn);
 
-        return Pair.create(drive, turn);
+        return Pair.create(-drive, -turn);
     }
 }
