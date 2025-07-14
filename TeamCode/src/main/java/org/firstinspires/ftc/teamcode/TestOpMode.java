@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 public class TestOpMode extends LinearOpMode {
 
 
-    private DriveSubsystem driveSubsystem;
     public ArmSubsystem armSubsystem;
+    private DriveSubsystem driveSubsystem;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,21 +27,28 @@ public class TestOpMode extends LinearOpMode {
             armSubsystem = new ArmSubsystem(hardwareMap, telemetry);
         }
 
+        double desired = 0;
         while (opModeIsActive()) {
-            driveSubsystem.driveStraight(Constants.DriveConstants.DRIVE_SPEED, 24.0, 0.0);    // Drive Forward 24"
-            driveSubsystem.turnToHeading(Constants.DriveConstants.TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-            driveSubsystem.holdHeading(Constants.DriveConstants.TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
+            if (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0) {
+                driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x);
+            }
+            driveSubsystem.sendTelemetry();
 
-            driveSubsystem.driveStraight(Constants.DriveConstants.DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-            driveSubsystem.turnToHeading(Constants.DriveConstants.TURN_SPEED,  45.0);               // Turn  CCW  to  45 Degrees
-            driveSubsystem.holdHeading(Constants.DriveConstants.TURN_SPEED,  45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
 
-            driveSubsystem.driveStraight(Constants.DriveConstants.DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-            driveSubsystem.turnToHeading(Constants.DriveConstants.TURN_SPEED,   0.0);               // Turn  CW  to 0 Degrees
-            driveSubsystem.holdHeading(Constants.DriveConstants.TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for 1 second
+            double allowance = 1;
+            double yaw = driveSubsystem.getYaw();
 
-            driveSubsystem.driveStraight(Constants.DriveConstants.TURN_SPEED,-48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+            desired += (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
 
+            double turn = (yaw > desired - allowance ? 1 : 0) - (yaw < desired + allowance ? 1 : 0);
+
+            driveSubsystem.tankDrive(0, turn);
+
+            telemetry.addData("data", "current %f, target %f, turn %f", yaw, desired, turn);
+
+            //driveSubsystem.rotate(90, 1);
+
+            telemetry.update();
         }
 
     }

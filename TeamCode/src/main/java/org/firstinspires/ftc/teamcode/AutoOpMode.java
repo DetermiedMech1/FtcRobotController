@@ -118,7 +118,7 @@ public class AutoOpMode extends LinearOpMode {
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
 
-        aprilTag = new AprilTagProcessor.Builder().setTagLibrary(AprilTagGameDatabase.getIntoTheDeepTagLibrary()).build();
+        aprilTag = new AprilTagProcessor.Builder().setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary()).build();
 
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -132,7 +132,7 @@ public class AutoOpMode extends LinearOpMode {
 
         // Create the vision portal by using a builder.
         if (Constants.AutoConstants.USE_WEBCAM) {
-            visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "camera")).addProcessor(aprilTag).build();
+            visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "camera0")).addProcessor(aprilTag).build();
         } else {
             visionPortal = new VisionPortal.Builder().setCamera(BuiltinCameraDirection.BACK).addProcessor(aprilTag).build();
         }

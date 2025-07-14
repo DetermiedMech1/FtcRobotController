@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -11,7 +12,8 @@ import org.firstinspires.ftc.teamcode.Constants;
 public class ArmSubsystem {
 
     private final Telemetry telemetry;
-    private final DcMotor armMotor;
+    public final DcMotor armMotor;
+    public final Servo handMotor;
     private int armHoldPosition;
 
     public ArmSubsystem(@NonNull HardwareMap hardwareMap, @NonNull Telemetry telemetry) {
@@ -21,8 +23,12 @@ public class ArmSubsystem {
         armMotor = hardwareMap.get(DcMotor.class, Constants.RobotConstants.ARM_MOTOR_ID);
 
         armMotor.setTargetPosition(0);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        handMotor = hardwareMap.get(Servo.class, Constants.RobotConstants.HAND_MOTOR_ID);
+        handMotor.setDirection(Servo.Direction.REVERSE);
+        handMotor.scaleRange(0,0.13);
+
 
     }
 
@@ -37,6 +43,27 @@ public class ArmSubsystem {
         armHoldPosition = armMotor.getCurrentPosition();
         stop();
     }
+
+    /**
+     *
+     */
+    public void openHand(boolean open) {
+        if (open) {
+            handMotor.setPosition(0);
+        } else {
+            handMotor.setPosition(1);
+        }
+    }
+
+
+    /**
+     *
+     */
+    /*
+    public void runIntake(boolean direction) {
+
+    }
+    */
 
     /**
      * stop the arm

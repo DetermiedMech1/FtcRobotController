@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 public final class Constants {
     public static class RobotConstants {
-        public static final String LEFT_MOTOR_ID = "0";
-        public static final String RIGHT_MOTOR_ID = "1";
-        public static final String ARM_MOTOR_ID = "2";
+        public static final String LEFT_MOTOR_ID = "motor0";
+        public static final String RIGHT_MOTOR_ID = "motor1";
+        public static final String ARM_MOTOR_ID = "motor2";
+        public static final String HAND_MOTOR_ID = "servo0";
+
     }
 
     public static class DriveConstants {
@@ -24,13 +26,13 @@ public final class Constants {
         // They can/should be tweaked to suit the specific robot drive train.
         public static final double DRIVE_SPEED = 0.4;     // Max driving speed for better distance accuracy.
         public static final double TURN_SPEED = 0.2;     // Max turn speed to limit turn rate.
-        public static final double HEADING_THRESHOLD = 1.0;    // How close must the heading get to the target before moving to next step.
+        public static final double HEADING_THRESHOLD = 0.5;    // How close must the heading get to the target before moving to next step.
         // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
         // Define the Proportional control coefficient (or GAIN) for "heading control".
         // We define one value when Turning (larger errors), and the other is used when Driving straight (smaller errors).
         // Increase these numbers if the heading does not correct strongly enough (eg: a heavy robot or using tracks)
         // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
-        public static final double P_TURN_GAIN = 0.02;     // Larger is more responsive, but also less stable.
+        public static final double P_TURN_GAIN = 0.01;     // Larger is more responsive, but also less stable.
         public static final double P_DRIVE_GAIN = 0.03;     // Larger is more responsive, but also less stable.
     }
 
@@ -50,10 +52,10 @@ public final class Constants {
 
     public static class ArmConstants {
         public static final double ENCODER_TICKS_PER_ROTATION = 288;
-        public static final double GEARBOX_RATIO = 72;
-        public static final double EXT_GEAR_REDUCTON = 125.0 / 45.0;
+        public static final double GEARBOX_RATIO = 72.0/1.0;
+        public static final double EXT_GEAR_RATIO = 90.0/15.0;
         public static final double TICKS_PER_DEGREE = 1.0 / 360.0;
-        public static final double ARM_TICKS_PER_DEGREE = ENCODER_TICKS_PER_ROTATION * GEARBOX_RATIO * EXT_GEAR_REDUCTON * TICKS_PER_DEGREE;
+        public static final double ARM_TICKS_PER_DEGREE = ENCODER_TICKS_PER_ROTATION * EXT_GEAR_RATIO * GEARBOX_RATIO * TICKS_PER_DEGREE;
 
     }
 }
