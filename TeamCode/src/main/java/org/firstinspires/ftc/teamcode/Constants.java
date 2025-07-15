@@ -6,7 +6,7 @@ public final class Constants {
         public static final String RIGHT_MOTOR_ID = "motor1";
         public static final String ARM_MOTOR_ID = "motor2";
         public static final String HAND_MOTOR_ID = "servo0";
-
+        public static final String DIST_SENSOR_ID = "distance0";
     }
 
     public static class DriveConstants {
@@ -18,7 +18,7 @@ public final class Constants {
         // This is gearing DOWN for less speed and more torque.
         // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
         public static final double COUNTS_PER_MOTOR_REV = 20;
-        public static final double DRIVE_GEAR_REDUCTION = 1.0 / 20;
+        public static final double DRIVE_GEAR_REDUCTION = 1;
         public static final double WHEEL_DIAMETER_INCHES = 3.543307087;
         public static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
 

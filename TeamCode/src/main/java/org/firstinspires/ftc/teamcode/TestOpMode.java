@@ -30,7 +30,7 @@ public class TestOpMode extends LinearOpMode {
         double desired = 0;
         while (opModeIsActive()) {
             if (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0) {
-                driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x);
+                driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
             }
             driveSubsystem.sendTelemetry();
 
@@ -42,7 +42,7 @@ public class TestOpMode extends LinearOpMode {
 
             double turn = (yaw > desired - allowance ? 1 : 0) - (yaw < desired + allowance ? 1 : 0);
 
-            driveSubsystem.tankDrive(0, turn);
+            driveSubsystem.tankDrive(0, turn, 1);
 
             telemetry.addData("data", "current %f, target %f, turn %f", yaw, desired, turn);
 

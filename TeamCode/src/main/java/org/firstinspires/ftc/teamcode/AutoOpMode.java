@@ -105,7 +105,7 @@ public class AutoOpMode extends LinearOpMode {
             }
 
 
-            driveSubsystem.tankDrive(drive, turn);
+            driveSubsystem.tankDrive(drive, turn, 1);
             telemetry.update();
         }
     }

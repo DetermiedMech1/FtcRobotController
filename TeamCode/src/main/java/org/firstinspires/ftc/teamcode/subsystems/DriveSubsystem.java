@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static java.lang.Thread.sleep;
-
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -74,7 +72,7 @@ public class DriveSubsystem {
      * @param forward forward power
      * @param turn    turn power
      */
-    public void tankDrive(double forward, double turn) {
+    public void tankDrive(double forward, double turn, double speed) {
 
         double ogForward = forward;
         double ogTurn = turn;
@@ -90,7 +88,7 @@ public class DriveSubsystem {
         double lSpeed = forward + turn;
         double rSpeed = forward - turn;
 
-        splitDrive(lSpeed, rSpeed);
+        splitDrive(lSpeed * speed, rSpeed * speed);
 
         telemetry.addData("Status", "forward %f  %f \n turn %f %f", ogForward, ogTurn, forward, turn);
 
@@ -120,22 +118,6 @@ public class DriveSubsystem {
             return pitch + 360;
         } else {
             return pitch;
-        }
-    }
-
-    public void turn(double degrees, double allowance) {
-
-        double yaw = Double.NaN, distance;
-
-        while (yaw != degrees) {
-            yaw = getYaw();
-
-            distance = Math.abs(yaw - degrees);
-            distance = Math.min(distance, 360 - distance);
-            if (distance > 180 ) distance -= 180;
-
-            if (distance < 0) tankDrive(0, -1);
-            else tankDrive(0, 1);
         }
     }
 
@@ -169,72 +151,6 @@ public class DriveSubsystem {
 
         return globalAngle;
     }
-
-    /**
-     * See if we are moving in a straight line and if not return a power correction value.
-     * @return Power adjustment, + is adjust left - is adjust right.
-     */
-    private double checkDirection()
-    {
-        // The gain value determines how sensitive the correction is to direction changes.
-        // You will have to experiment with your robot to get small smooth direction changes
-        // to stay on a straight line.
-        double correction, angle, gain = .10;
-
-        angle = getAngle();
-
-        if (angle == 0)
-            correction = 0;             // no adjustment.
-        else
-            correction = -angle;        // reverse sign of angle for correction.
-
-        correction = correction * gain;
-
-        return correction;
-    }
-
-    /**
-     * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
-     * @param degrees Degrees to turn, + is left - is right
-     */
-    public void rotate(int degrees, double power) throws InterruptedException {
-        double leftPower, rightPower;
-
-        // restart imu movement tracking.
-        resetAngle();
-
-        // getAngle() returns + when rotating counter clockwise (left) and - when rotating
-        // clockwise (right).
-
-        if (degrees < 0) {   // turn right.
-            leftPower = power;
-            rightPower = -power;
-        } else if (degrees > 0) {   // turn left.
-            leftPower = -power;
-            rightPower = power;
-        } else return;
-
-        // set power to rotate.
-        splitDrive(leftPower, rightPower);
-
-        // rotate until turn is completed.
-        if (degrees < 0) {
-            while (getAngle() > degrees);
-        } else {    // left turn.
-            while (getAngle() < degrees);
-        }
-
-        // turn the motors off.
-        splitDrive(0,0);
-
-
-        // wait for rotation to stop.
-        while (leftMotor.isBusy() || rightMotor.isBusy()) sleep(1000);
-
-        // reset angle tracking on new heading.
-        resetAngle();
-    }
-
 
     public void sendTelemetry() {
         telemetry.addData("angles", "p %f \n r %f \n y %f", getPitch(), getRoll(), getYaw());
