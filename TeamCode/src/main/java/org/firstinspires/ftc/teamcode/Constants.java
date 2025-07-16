@@ -5,7 +5,7 @@ public final class Constants {
         public static final String LEFT_MOTOR_ID = "motor0";
         public static final String RIGHT_MOTOR_ID = "motor1";
         public static final String ARM_MOTOR_ID = "motor2";
-        public static final String HAND_MOTOR_ID = "servo0";
+        public static final String CLAW_MOTOR_ID = "servo0";
         public static final String DIST_SENSOR_ID = "distance0";
     }
 

@@ -31,15 +31,15 @@ public class TeleOpMode extends LinearOpMode {
         double speed = 0;
 
         while (opModeIsActive()) {
-            //driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, 0.3);
-            //armSubsystem.moveArm(gamepad1.right_stick_y);
+            driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, 0.3);
+            armSubsystem.moveArm(gamepad1.right_stick_y, 0.7);
 
-            if (gamepad1.circle) {
-                armSubsystem.intake();
+            if (gamepad1.circle || armSubsystem.intaking) {
+                armSubsystem.intake(ArmSubsystem.Part.INTAKE);
             }
 
             if (gamepad1.cross) {
-                armSubsystem.outtake();
+                armSubsystem.outtake(ArmSubsystem.Part.INTAKE);
             }
 
             driveSubsystem.sendTelemetry();

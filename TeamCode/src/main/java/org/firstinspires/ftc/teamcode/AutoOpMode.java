@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import androidx.core.util.Pair;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.Range;
+import com.sun.tools.javac.util.Pair;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -93,8 +92,8 @@ public class AutoOpMode extends LinearOpMode {
             if (gamepad1.left_bumper && targetFound) {
                 Pair<Double, Double> movement = goToAprilTag(desiredTag);
 
-                drive = movement.first;
-                turn = movement.second;
+                drive = movement.fst;
+                turn = movement.snd;
 
                 telemetry.addData("Auto", "Drive %5.2f, Turn %5.2f", drive, turn);
             } else {
@@ -189,6 +188,6 @@ public class AutoOpMode extends LinearOpMode {
 
         telemetry.addData("Auto", "Drive %5.2f, Turn %5.2f", drive, turn);
 
-        return Pair.create(-drive, -turn);
+        return Pair.of(-drive, -turn);
     }
 }
