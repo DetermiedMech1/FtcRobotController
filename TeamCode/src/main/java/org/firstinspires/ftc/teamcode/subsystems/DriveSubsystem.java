@@ -153,6 +153,6 @@ public class DriveSubsystem {
     }
 
     public void sendTelemetry() {
-        telemetry.addData("angles", "p %f \n r %f \n y %f", getPitch(), getRoll(), getYaw());
+        //telemetry.addData("angles", "p %f \n r %f \n y %f", getPitch(), getRoll(), getYaw());
     }
 }

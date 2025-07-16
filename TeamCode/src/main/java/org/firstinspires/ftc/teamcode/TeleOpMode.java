@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 
-
 @TeleOp(name = "TeleOp")
 @SuppressWarnings("unused")
 public class TeleOpMode extends LinearOpMode {
@@ -27,12 +26,20 @@ public class TeleOpMode extends LinearOpMode {
             armSubsystem = new ArmSubsystem(hardwareMap, telemetry);
         }
 
-        double pos = 0;
         double speed = 0;
 
         while (opModeIsActive()) {
-            driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, 0.3);
-            armSubsystem.moveArm(gamepad1.right_stick_y, 0.7);
+
+            if (gamepad1.left_bumper) {
+                speed = 0.7;
+            } else if (gamepad1.right_bumper) {
+                speed = 0.2;
+            } else {
+                speed = 0.4;
+            }
+
+            driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, speed);
+            armSubsystem.moveArm((gamepad1.dpad_down?1:0) - (gamepad1.dpad_up?1:0), 1);
 
             if (gamepad1.circle || armSubsystem.intaking) {
                 armSubsystem.intake(ArmSubsystem.Part.INTAKE);
@@ -42,6 +49,7 @@ public class TeleOpMode extends LinearOpMode {
                 armSubsystem.outtake(ArmSubsystem.Part.INTAKE);
             }
 
+            telemetry.addData("Speed: ", speed);
             driveSubsystem.sendTelemetry();
             armSubsystem.sendTelemetry();
             telemetry.update();

@@ -15,11 +15,11 @@ import org.firstinspires.ftc.teamcode.Constants;
 public class ArmSubsystem {
 
     private final Telemetry telemetry;
-    public final DcMotor armMotor;
-    public Servo clawMotor = null;
-    public CRServo intakeMotor = null;
-    public final Rev2mDistanceSensor distanceSensor;
-    public int armHoldPosition;
+    private final DcMotor armMotor;
+    private Servo clawMotor = null;
+    private CRServo intakeMotor = null;
+    private Rev2mDistanceSensor distanceSensor = null;
+    private int armHoldPosition;
     public boolean intaking;
     public enum Part {
         ARM, CLAW, INTAKE
@@ -47,8 +47,9 @@ public class ArmSubsystem {
             }
         }
 
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, Constants.RobotConstants.DIST_SENSOR_ID);
-
+        try {
+            distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, Constants.RobotConstants.DIST_SENSOR_ID);
+        } catch (Exception ignored) {}
 
     }
 
@@ -100,7 +101,7 @@ public class ArmSubsystem {
                 clawMotor.setPosition(0);
 
             case INTAKE:
-                intakeMotor.setPower(-0.3);
+                intakeMotor.setPower(-0.4);
         }
 
     }
@@ -127,9 +128,8 @@ public class ArmSubsystem {
     }
 
     public void sendTelemetry() {
-
-        telemetry.addData("object distance: ", distanceSensor.getDistance(DistanceUnit.MM));
-        telemetry.addData("disable intake: ", distanceSensor.getDistance(DistanceUnit.MM) < 25.0);
+        //telemetry.addData("object distance: ", distanceSensor.getDistance(DistanceUnit.MM));
+        //telemetry.addData("disable intake: ", distanceSensor.getDistance(DistanceUnit.MM) < 25.0);
     }
 
 }
