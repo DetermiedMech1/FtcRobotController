@@ -53,20 +53,44 @@ public class ArmSubsystem {
 
     }
 
+    public void setMotorMode(DcMotor.RunMode mode) {
+        armMotor.setMode(mode);
+    }
+
+    public boolean isBusy() {
+        return armMotor.isBusy();
+    }
+
     /**
      * move the arm at some speed
      * @param power percentage of speed to move at
-     * @param speed to move at
+     * @param speed the speed at which to move
      */
     public void moveArm(double power, double speed) {
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armMotor.setPower(power * speed);
 
-        if (power != 0) {
+        if (power != 0)
             armHoldPosition = armMotor.getCurrentPosition();
-        }
 
         stop(Part.ARM);
+    }
+
+    /**
+     * move the arm to a specific position
+     * @param position the position to move to
+     * @param speed the speed at which to move
+     */
+    public void moveArmToPosition(int position, double speed) {
+        armMotor.setTargetPosition(position);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(speed);
+
+        while (armMotor.isBusy())
+            armHoldPosition = armMotor.getCurrentPosition();
+
+        stop(Part.ARM);
+
     }
 
     /**
@@ -128,8 +152,8 @@ public class ArmSubsystem {
     }
 
     public void sendTelemetry() {
-        //telemetry.addData("object distance: ", distanceSensor.getDistance(DistanceUnit.MM));
-        //telemetry.addData("disable intake: ", distanceSensor.getDistance(DistanceUnit.MM) < 25.0);
+        telemetry.addData("object distance: ", distanceSensor.getDistance(DistanceUnit.MM));
+        telemetry.addData("arm angle: ", armMotor.getCurrentPosition());
     }
 
 }

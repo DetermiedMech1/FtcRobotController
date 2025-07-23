@@ -19,21 +19,13 @@ public final class Constants {
         // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
         public static final double COUNTS_PER_MOTOR_REV = 20;
         public static final double DRIVE_GEAR_REDUCTION = 1;
-        public static final double WHEEL_DIAMETER_INCHES = 3.543307087;
-        public static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
+        public static final double WHEEL_DIAMETER_MM = 90;
+        public static final double COUNTS_PER_MM = 1.89873418/* (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_MM * 3.1415) */;
 
         // These constants define the desired driving/control characteristics
         // They can/should be tweaked to suit the specific robot drive train.
         public static final double DRIVE_SPEED = 0.4;     // Max driving speed for better distance accuracy.
         public static final double TURN_SPEED = 0.2;     // Max turn speed to limit turn rate.
-        public static final double HEADING_THRESHOLD = 0.5;    // How close must the heading get to the target before moving to next step.
-        // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
-        // Define the Proportional control coefficient (or GAIN) for "heading control".
-        // We define one value when Turning (larger errors), and the other is used when Driving straight (smaller errors).
-        // Increase these numbers if the heading does not correct strongly enough (eg: a heavy robot or using tracks)
-        // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
-        public static final double P_TURN_GAIN = 0.01;     // Larger is more responsive, but also less stable.
-        public static final double P_DRIVE_GAIN = 0.03;     // Larger is more responsive, but also less stable.
     }
 
     public static class AutoConstants {

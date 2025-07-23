@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 public class TestOpMode extends LinearOpMode {
 
 
-    public ArmSubsystem armSubsystem;
+    private ArmSubsystem armSubsystem;
     private DriveSubsystem driveSubsystem;
 
     @Override
@@ -20,34 +20,29 @@ public class TestOpMode extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+
         waitForStart();
 
         if (opModeIsActive()) {
             driveSubsystem = new DriveSubsystem(hardwareMap, telemetry);
             armSubsystem = new ArmSubsystem(hardwareMap, telemetry);
         }
-
-        double desired = 0;
+        
         while (opModeIsActive()) {
-            if (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0) {
-                driveSubsystem.tankDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
+            driveSubsystem.stopped = isStopRequested();
+
+            while (true) {
+                driveSubsystem.setTargetRotation(90);
+                driveSubsystem.turnToTargetRotation(10);
+                if (!driveSubsystem.turning) {
+                    driveSubsystem.setTargetRotation(0);
+                    break;
+                }
             }
+
+            if (!driveSubsystem.turning) break;
+
             driveSubsystem.sendTelemetry();
-
-
-            double allowance = 1;
-            double yaw = driveSubsystem.getYaw();
-
-            desired += (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
-
-            double turn = (yaw > desired - allowance ? 1 : 0) - (yaw < desired + allowance ? 1 : 0);
-
-            driveSubsystem.tankDrive(0, turn, 1);
-
-            telemetry.addData("data", "current %f, target %f, turn %f", yaw, desired, turn);
-
-            //driveSubsystem.rotate(90, 1);
-
             telemetry.update();
         }
 

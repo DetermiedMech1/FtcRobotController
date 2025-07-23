@@ -29,6 +29,7 @@ public class TeleOpMode extends LinearOpMode {
         double speed = 0;
 
         while (opModeIsActive()) {
+            driveSubsystem.stopped = isStopRequested();
 
             if (gamepad1.left_bumper) {
                 speed = 0.7;

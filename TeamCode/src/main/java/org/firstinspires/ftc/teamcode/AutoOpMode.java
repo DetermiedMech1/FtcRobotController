@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import com.sun.tools.javac.util.Pair;
 
@@ -9,36 +10,45 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDir
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-@Autonomous(name = "Auto")
+@Autonomous(name = "AutoOp")
 @SuppressWarnings("unused")
 public class AutoOpMode extends LinearOpMode {
+
     private final int DESIRED_TAG_ID = -1;
     private DriveSubsystem driveSubsystem;
+    private ArmSubsystem armSubsystem;
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
+
+    private enum AutoState {
+        FIRST, SECOND, LAST, DONE
+    }
+
+    private AutoState state;
+
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+        state = AutoState.FIRST;
+
         boolean targetFound;
 
         initAprilTag();
 
-        if (Constants.AutoConstants.USE_WEBCAM) {
-            setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
-        }
 
         // Wait for the driver to press Start
         telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
@@ -50,61 +60,75 @@ public class AutoOpMode extends LinearOpMode {
 
         if (opModeIsActive()) {
             driveSubsystem = new DriveSubsystem(hardwareMap, telemetry);
+            armSubsystem = new ArmSubsystem(hardwareMap, telemetry);
+
         }
 
         while (opModeIsActive()) {
-            targetFound = false;
-            AprilTagDetection desiredTag = null;
+            driveSubsystem.stopped = isStopRequested();
 
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            for (AprilTagDetection detection : currentDetections) {
-                // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
-                    //  Check to see if we want to track towards this tag.
-                    if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
-                        // Yes, we want to use this tag.
-                        targetFound = true;
-                        desiredTag = detection;
-                        break;  // don't look any further.
-                    } else {
-                        // This tag is in the library, but we do not want to track it right now.
-                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+            telemetry.addData("state:", state);
+            telemetry.addData("ball", driveSubsystem.getDistance());
+
+            switch (state) {
+                case FIRST:
+                    driveSubsystem.setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    armSubsystem.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    if (driveSubsystem.getDistance() > 25) {
+                        driveSubsystem.tankDrive(-0.5, 0, 0.2);
+                        telemetry.addData("1", "driving forward");
+
+                        if (!armSubsystem.intaking)
+                            armSubsystem.intake(ArmSubsystem.Part.INTAKE);
+                        telemetry.addData("2","intaking");
                     }
-                } else {
-                    // This tag is NOT in the library, so we don't have enough information to track to it.
-                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
-                }
+
+                    if (driveSubsystem.getDistance() < 25) {
+
+                        driveSubsystem.tankDrive(0,0,0);
+                        armSubsystem.moveArmToPosition(-210, 0.1);
+                        telemetry.addData("3","moving arm");
+
+                        while (armSubsystem.isBusy()) sleep(100);
+
+                        state = AutoState.SECOND;
+                    }
+
+                    break;
+
+                case SECOND:
+                    driveSubsystem.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    telemetry.addData("4","resetting encoders");
+
+                    armSubsystem.outtake(ArmSubsystem.Part.INTAKE);
+                    telemetry.addData("5","outtaking");
+
+                    state = AutoState.LAST;
+                    break;
+
+                case LAST:
+                    armSubsystem.moveArmToPosition(0, 0.1);
+                    telemetry.addData("7","moving arm");
+                    while (armSubsystem.isBusy()) sleep(100);
+
+                    while (Math.round(driveSubsystem.getYaw()) != 90) {
+                        driveSubsystem.turn(10);
+                    }
+                    telemetry.addData("8", "turning");
+
+                    driveSubsystem.drive(DistanceUnit.MM.fromInches(2),0.2);
+                    telemetry.addData("9", "driving back");
+                    while (driveSubsystem.isBusy()) sleep(100);
+
+                    state = AutoState.DONE;
+                    break;
+
+                default:
+                    break;
+
             }
 
-            // Tell the driver what we see, and what to do.
-            if (targetFound) {
-                telemetry.addData("\n>", "HOLD Left-Bumper to Drive to Target\n");
-                telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
-
-
-            } else {
-                telemetry.addData("\n>", "Drive using joysticks to find valid target\n");
-            }
-
-            double drive, turn;
-            if (gamepad1.left_bumper && targetFound) {
-                Pair<Double, Double> movement = goToAprilTag(desiredTag);
-
-                drive = movement.fst;
-                turn = movement.snd;
-
-                telemetry.addData("Auto", "Drive %5.2f, Turn %5.2f", drive, turn);
-            } else {
-                drive = gamepad1.left_stick_y;
-                turn = gamepad1.right_stick_x;
-
-                telemetry.addData("Manual", "Drive %5.2f, Turn %5.2f", drive, turn);
-            }
-
-
-            driveSubsystem.tankDrive(drive, turn, 1);
             telemetry.update();
         }
     }
